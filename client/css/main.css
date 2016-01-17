@@ -1,0 +1,26 @@
+#chat{
+  height: 500px;
+  overflow: auto;
+  position: absolute
+  left:0;
+  right:0;
+  top:0;
+  bottom:3em;
+}
+#contentWrap{
+  display:none
+}
+#chatWrap{
+  float: left;
+  border: 1px #000 solid;
+}
+.error{
+  color: red;
+}
+.whisper{
+  color: grey;
+  font-style: italic;
+}
+#help{
+  display: inline-block;
+}
