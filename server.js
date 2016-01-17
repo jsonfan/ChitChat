@@ -1,13 +1,17 @@
-// require express
 var express = require("express");
-// path module -- try to figure out where and why we use this
 var path = require("path");
-// var session = require('express-session');
 // create the express app
+var mongoose = require('mongoose');
+
 var app = express();
+
 var port = process.env.PORT || 3000
 
+require('./server/config/mongoose.js')
+
 var users = {};
+
+var Chat = mongoose.model('Chat');
 
 app.use(express.static(path.join(__dirname, './client')));
 
@@ -16,10 +20,12 @@ var server = app.listen(port, function() {
 })
 
 var io = require('socket.io').listen(server)
-var numUsers = 0;
 // Whenever a connection event happens (the connection event is built in) run the following code
 io.sockets.on('connection', function (socket) {
-
+  var chatHistory = Chat.find({}).sort('-createdAt').limit(8).exec(function(err, msgs){
+    if(err) throw err;
+    socket.emit('load old msgs', msgs);
+  })
   socket.on("new user", function (data, callback){
     // if (addedUser) return;
     if(data in users) {
@@ -54,7 +60,11 @@ io.sockets.on('connection', function (socket) {
         callback("Error! Please enter a message for your whisper.");
       }
     } else {
-      io.sockets.emit('new message', {msg: msg, nick: socket.nickname});
+      var newMsg = new Chat({msg: msg, nick: socket.nickname});
+      newMsg.save(function(err){
+        if(err) throw err;
+        io.sockets.emit('new message', {msg: msg, nick: socket.nickname});
+      })
     }
   })
 

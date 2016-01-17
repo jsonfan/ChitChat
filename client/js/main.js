@@ -18,7 +18,7 @@ $(document).ready(function(){
   socket.on('usernames', function(data){
     var html = "";
     for (var i = 0; i < data.length; i++) {
-      html += "<a href='#!'class='collection-item whisper'>" + data[i] + "<i class='material-icons'>chat_bubble</i></a>";
+      html += "<a class='collection-item' alt='"+ data[i] +"'>" + data[i] + "<i class='material-icons'>chat_bubble</i></a>";
     }
     $("#users").html(html);
   });
@@ -30,10 +30,15 @@ $(document).ready(function(){
     });
     $("#message").val('');
   });
-  
+
+  socket.on('load old msgs', function(msgs){
+    for(var i = msgs.length - 1; i >= 0; i--){
+      displayMsg(msgs[i]);
+    }
+  })
+
   socket.on("new message", function(data){
-    var outputWithEmojis = emojione.shortnameToImage(data.msg);
-    $("#chat").append("<span class='msg'><b>" + data.nick + ": </b>" + outputWithEmojis + "</span><br/>");
+    displayMsg(data);
     $("#chat").animate({scrollTop: $("#chat")[0].scrollHeight}, 2000);
   });
 
@@ -43,7 +48,13 @@ $(document).ready(function(){
     $("#chat").animate({scrollTop: $("#chat")[0].scrollHeight}, 2000);
   })
 
-  $(".whisper").click(function(){
-    alert('clicked');
+  $("body").on('click', '.collection-item', function(){
+    var name = $(this).attr('alt')
+    $("#message").val('/w ' + name + ' ');
   })
+
+  function displayMsg(data){
+    var outputWithEmojis = emojione.shortnameToImage(data.msg);
+    $("#chat").append("<span class='msg'><b>" + data.nick + ": </b>" + outputWithEmojis + "</span><br/>");
+  }
 });
