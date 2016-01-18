@@ -23,3 +23,4 @@ node server.js
 * MongoDB
 * MaterializeCSS
 * Socket.IO
+* Emoji One
